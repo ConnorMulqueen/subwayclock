@@ -228,8 +228,7 @@ for station_object in config['stations']:
           text=station_object['description']).grid(row=row,
                                        column=0,
                                        columnspan=2,
-                                       sticky=W,
-                                        displayHeight=1)
+                                       sticky=W)
     # train image
     train_image = Label(m)
     train_image['image'] = images['A']
