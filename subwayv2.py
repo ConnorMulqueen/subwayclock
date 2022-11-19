@@ -174,16 +174,16 @@ dpi = int(m.winfo_pixels('1i'))
 ppx = dpi / 72
 
 # Font size of time text should be 10% of screen height
-timeTextFontSize = int((displayHeight * 0.10) * ppx)
+timeTextFontSize = int((displayHeight * 0.01) * ppx)
 
 # Label font size should be 5% of screen height
-labelFontSize = int((displayHeight * 0.05) * ppx)
+labelFontSize = int((displayHeight * 0.025) * ppx)
 
 # Make our background white
 m.configure(background='white')
 
 # Target size of images is 37.5% of display height
-imageSize = int(displayHeight * 0.375)
+imageSize = int(displayHeight * 0.10)
 
 
 # Map train letters to images. Scale the images as necessary. The results
@@ -222,15 +222,14 @@ with open("stationsconfig.json", "r") as json_config:
 
 row = 0
 column = 0
-breakpoint()
 for station_object in config['stations']:
-    breakpoint()
     Label(m,
           font=(fontName, labelFontSize),
           text=station_object['description']).grid(row=row,
                                        column=0,
                                        columnspan=2,
-                                       sticky=W)
+                                       sticky=W,
+                                        displayHeight=1)
     # train image
     train_image = Label(m)
 
@@ -253,34 +252,6 @@ for station_object in config['stations']:
 
 
     row+=3
-
-
-
-
-
-
-
-
-
-
-# Downtown platform name
-Label(m,
-      font=(fontName,labelFontSize),
-      text=downtownDescription).grid(row=3,
-                                     column=0,
-                                     columnspan=2,
-                                     sticky=W)
-
-# Downtown train image
-bottomImage = Label(m)
-bottomImage.grid(row=4, column=0)
-
-# Label which displays downtown arrival times
-bottomString = StringVar()
-bottomText = Label(m,
-                   font=(fontName,timeTextFontSize),
-                   textvariable=bottomString)
-bottomText.grid(row=4, column=1, sticky=W)
 
 # Make all widgets have the same bg color as the main window
 for c in m.winfo_children():
