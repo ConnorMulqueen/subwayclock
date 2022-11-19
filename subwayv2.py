@@ -193,7 +193,7 @@ imageSize = int(displayHeight * 0.10)
 images = {}
 
 # Grab each PNG in the icons subdirectory
-for f in (glob.glob('icons%s*.png'%(os.sep))):
+for f in (glob.glob('assets%s*.png'%(os.sep))):
 
     # Index on the basename of the PNG file. For example the "A" train will
     # have its image in the file icons/A.png
@@ -232,6 +232,7 @@ for station_object in config['stations']:
                                         displayHeight=1)
     # train image
     train_image = Label(m)
+    train_image['image'] = images['A']
 
     train_string = StringVar()
     train_text = Label(m,
