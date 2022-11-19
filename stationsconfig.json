@@ -1,22 +1,24 @@
 {
   "stations": [
-    {
-      "229N": {
+      {
+        "station_name": "229N",
         "available_lines": ["2","3"],
         "description": "Uptown to ___"
       },
-      "229S": {
+      {
+        "station_name": "229S",
         "available_lines": ["2","3"],
         "description": "Downtown to ___"
       },
-      "139N": {
+      {
+        "station_name": "139N",
         "available_lines": ["R","W"],
         "description": "Uptown to ___"
       },
-      "139S": {
+      {
+        "station_name": "139S",
         "available_lines": ["R","W"],
         "description": "Downtown to ___"
       }
-    }
   ]
 }

@@ -223,11 +223,11 @@ with open("stationsconfig.json", "r") as json_config:
 row = 0
 column = 0
 breakpoint()
-for station in config['stations']:
+for station_object in config['stations']:
     breakpoint()
     Label(m,
           font=(fontName, labelFontSize),
-          text=station['description']).grid(row=row,
+          text=station_object['description']).grid(row=row,
                                        column=0,
                                        columnspan=2,
                                        sticky=W)
