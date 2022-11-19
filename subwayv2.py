@@ -5,6 +5,7 @@ from mta import *
 from argparse import ArgumentParser
 import os
 import glob
+import json
 
 # Command-line arguments
 aparse = ArgumentParser()
@@ -28,6 +29,8 @@ args = aparse.parse_args()
 # Our stations uptown and downtown, at 72nd and 2nd
 ourUptownStation = args.uptownstation
 ourDowntownStation = args.downtownstation
+
+stations = []
 
 # Platform descriptions of the above
 uptownDescription = args.uptowndescription
@@ -90,10 +93,12 @@ def callBack():
     global downtownTrains
     global topText
     global bottomText
+    global trainTimes
 
     # Decrement all the arrival times by a minute (unless it's the first
     # time through)
     if (minuteCounter != 0):
+
         uptownMinutes = decList(uptownMinutes)
         downtownMinutes = decList(downtownMinutes)
 
@@ -114,22 +119,7 @@ def callBack():
     if ((minuteCounter % fetchInterval) == 0):
 
         try:
-            (uptownTrains,
-             uptownMinutes,
-             downtownTrains,
-             downtownMinutes) = getTrainTimes(ourUptownStation,
-                                           ourDowntownStation)
-
-            if (len(uptownTrains) != 0):
-                uptownTrain = uptownTrains[0]
-            else:
-                uptownTrain = ""
-
-
-            if (len(downtownTrains) != 0):
-                downtownTrain = downtownTrains[0]
-            else:
-                downtownTrain = ""
+            trainTimes = getTrainTimesList(["229N","229S", "138N", "138S"])
 
             # If we successfully got MTA API data, set our text to black
             topText.config(fg="black")
@@ -145,15 +135,15 @@ def callBack():
             minuteCounter -= 1
 
     # Set the images to the uptown and downtown trains
-    # try:
-    #     topImage['image'] = images[uptownTrain]
-    # except:
-    #     topImage['image'] = images['unknown']
-    #
-    # try:
-    #     bottomImage['image'] = images[downtownTrain]
-    # except:
-    #     bottomImage['image'] = images['unknown']
+    try:
+        topImage['image'] = images[uptownTrain]
+    except:
+        topImage['image'] = images['unknown']
+
+    try:
+        bottomImage['image'] = images[downtownTrain]
+    except:
+        bottomImage['image'] = images['unknown']
 
     # Update the display of the arrival times
     topString.set(formatMinutes(uptownMinutes))
@@ -200,60 +190,78 @@ imageSize = int(displayHeight * 0.375)
 # of scaling the images are not great, it's STRONGLY recommended that you
 # create images which are already of the correct size (37.5% of display height).
 
-# images = {}
+images = {}
 
 # Grab each PNG in the icons subdirectory
-# for f in (glob.glob('icons%s*.png'%(os.sep))):
-#
-#     # Index on the basename of the PNG file. For example the "A" train will
-#     # have its image in the file icons/A.png
-#     l = os.path.basename(os.path.splitext(f)[0])
-#     images[l] = PhotoImage(file=f)
-#
-#     # If the image is not square, we're just not going to deal with it.
-#     if (images[l].height() != images[l].width()):
-#         raise Exception("Image icons%s%s.png is not square"%(os.sep,l))
-#
-#     # Are we scaling down?
-#     if ((images[l].height() > imageSize)):
-#         scale = int(1 / (imageSize/images[l].width()))
-#         images[l] = images[l].subsample(scale, scale)
-#
-#     # Are we scaling up?
-#     if ((images[l].height() < imageSize)):
-#         scale = int(imageSize/images[l].width())
-#         images[l] = images[l].zoom(scale, scale)
+for f in (glob.glob('icons%s*.png'%(os.sep))):
+
+    # Index on the basename of the PNG file. For example the "A" train will
+    # have its image in the file icons/A.png
+    l = os.path.basename(os.path.splitext(f)[0])
+    images[l] = PhotoImage(file=f)
+
+    # If the image is not square, we're just not going to deal with it.
+    if (images[l].height() != images[l].width()):
+        raise Exception("Image icons%s%s.png is not square"%(os.sep,l))
+
+    # Are we scaling down?
+    if ((images[l].height() > imageSize)):
+        scale = int(1 / (imageSize/images[l].width()))
+        images[l] = images[l].subsample(scale, scale)
+
+    # Are we scaling up?
+    if ((images[l].height() < imageSize)):
+        scale = int(imageSize/images[l].width())
+        images[l] = images[l].zoom(scale, scale)
 
 
-# Uptown platform name
-Label(m,
-      font=(fontName,labelFontSize),
-      text=uptownDescription).grid(row=0,
-                                   column=0,
-                                   columnspan=2,
-                                   sticky=W)
 
-# Uptown train image
-topImage = Label(m)
+with open("stationsconfig.json", "r") as json_config:
+    config = json.load(json_config)
+    print("Successfully fetched config")
 
-topImage.grid(row=1, column=0)
+row = 0
+column = 0
+breakpoint()
+for station in config['stations']:
+    breakpoint()
+    Label(m,
+          font=(fontName, labelFontSize),
+          text=station['description']).grid(row=row,
+                                       column=0,
+                                       columnspan=2,
+                                       sticky=W)
+    # train image
+    train_image = Label(m)
 
-# Label which displays uptown arrival times
-topString = StringVar()
-topText = Label(m,
-                font=(fontName, timeTextFontSize),
-                textvariable=topString)
-topText.grid(row=1, column=1, sticky=W)
+    train_string = StringVar()
+    train_text = Label(m,
+                    font=(fontName, timeTextFontSize),
+                    textvariable=train_string)
+    train_text.grid(row=row+1, column=1, sticky=W)
+    train_image.grid(row=row+1, column=0)
 
-# Draw horizontal line seperating uptown/downtown times
-lineMargin = 20
-c = Canvas(m,width=displayWidth,
-           height=lineMargin,
-           bd=0,
-           highlightthickness=0,
-           relief='ridge')
-c.grid(row=2, column=0,columnspan=2, sticky="ew")
-c.create_line(0,lineMargin,displayWidth,lineMargin,width=3)
+    # Draw horizontal line seperating uptown/downtown times
+    lineMargin = 20
+    c = Canvas(m, width=displayWidth,
+               height=lineMargin,
+               bd=0,
+               highlightthickness=0,
+               relief='ridge')
+    c.grid(row=row+2, column=0, columnspan=2, sticky="ew")
+    c.create_line(0, lineMargin, displayWidth, lineMargin, width=3)
+
+
+    row+=3
+
+
+
+
+
+
+
+
+
 
 # Downtown platform name
 Label(m,
