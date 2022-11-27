@@ -6,35 +6,18 @@ from argparse import ArgumentParser
 import os
 import glob
 import json
+import datetime
 
 # Command-line arguments
 aparse = ArgumentParser()
 aparse.add_argument('-f','--fullscreen', action="store_true", default=False,
                     help="fullscreen")
-aparse.add_argument('-u','--uptownstation', action="store", default="Q03N",
-                    help="Uptown Station")
-aparse.add_argument('-d','--downtownstation', action="store", default="Q03S",
-                    help="Downtown Station")
-aparse.add_argument('-U','--uptowndescription', action="store",
-                    default="Uptown to 96th St.",
-                    help="Uptown Station Description")
-aparse.add_argument('-D','--downtowndescription', action="store",
-                    default="Downtown and Brooklyn",
-                    help="Downtown Station Description")
 
 
 
 args = aparse.parse_args()
 
-# Our stations uptown and downtown, at 72nd and 2nd
-ourUptownStation = args.uptownstation
-ourDowntownStation = args.downtownstation
-
 stations = []
-
-# Platform descriptions of the above
-uptownDescription = args.uptowndescription
-downtownDescription = args.downtowndescription
 
 # Font
 fontName = "sans"
@@ -45,16 +28,8 @@ oneMinute = 60000
 # Interval in minutes between MTA data fetches
 fetchInterval = 3
 
-# List of uptown and downtown train arrival times, in minutes
-# and the train ids
-uptownMinutes = []
-downtownMinutes = []
-uptownTrains = []
-downtownTrains = []
 
-# Which train is running (Q, M, etc.) uptown and downtown
-uptownTrain = ""
-downtownTrain = ""
+
 
 # Format a list of arrival times into a string for display
 def formatMinutes(mList):
@@ -83,37 +58,12 @@ def decList(l):
 # Will be called every minute
 def callBack():
     global minuteCounter
-    global uptownMinutes
-    global downtownMinutes
-    global topImage
-    global bottomImage
-    global uptownTrain
-    global downtownTrain
-    global uptownTrains
-    global downtownTrains
-    global topText
-    global bottomText
     global trainTimes
     global current_times
 
     # Decrement all the arrival times by a minute (unless it's the first
     # time through)
     if (minuteCounter != 0):
-
-        uptownMinutes = decList(uptownMinutes)
-        downtownMinutes = decList(downtownMinutes)
-
-        # Pop off train IDs to match the number of times we removed
-        uptownTrains = uptownTrains[len(uptownMinutes)*-1:]
-        downtownTrains = downtownTrains[len(downtownMinutes)*-1:]
-
-        # Grab the new, next trains to arrive
-        if (len(uptownTrains) > 0):
-            uptownTrain = uptownTrains[0]
-
-        if (len(downtownTrains) > 0):
-            downtownTrain = downtownTrains[0]
-            
         # ~ decrement arrival times
         for station in current_times.keys():
             for train_line in current_times[station].keys():
@@ -122,7 +72,7 @@ def callBack():
                 except:
                     breakpoint()
                 
-                
+        # ~ set strings
         for station in current_times.keys():
             for train_line in current_times[station].keys():
                 stations[station][train_line].set(', '.join(str(time) for time in current_times[station][train_line][0:4]))
@@ -154,41 +104,26 @@ def callBack():
                 
 
             # If we successfully got MTA API data, set our text to black
-            #topText.config(fg="black")
-            #bottomText.config(fg="black")t
+
         except Exception as e:
             print('exception thrown', e)
             # If the last MTA API call failed, set our text to red
-            # topText.config(fg="red")
-            #bottomText.config(fg="red")
 
             # If the API called failed, then bump the minute counter
             # down. This will force another API call on the next
             # firing of the callback.
             minuteCounter -= 1
 
-    # Set the images to the uptown and downtown trains
-    #try:
-    #    topImage['image'] = images[uptownTrain]
-    #except:
-    #    topImage['image'] = images['unknown']
 
-    #try:
-    #    bottomImage['image'] = images[downtownTrain]
-    #except:
-    #    bottomImage['image'] = images['unknown']
         
 
-    # Update the display of the arrival times
-    # topString.set(formatMinutes(uptownMinutes))
-    # bottomString.set(formatMinutes(downtownMinutes))
 
     # Increment our minute counter
     minuteCounter += 1
 
     # See 'ya again in a minute
     
-    print('fin')
+    print('callback fin', datetime.datetime.now())
     m.after(oneMinute,callBack)
 
 
@@ -262,15 +197,7 @@ stations = {}
 for station_object in config['stations']:
     firstRowColumns = 0
     stations[station_object['station_name']] = {}
-    # ~ for line in station_object['available_lines']:
-        # ~ stations[station_object['station_name'][line] = 'put times label here'
-    # ~ for train_line in station_object['available_lines']:
-        # ~ # train image
-        # ~ train_image = Label(m)
-        # ~ train_image.config(bg='gray51', fg='gray51')
-        # ~ train_image['image'] = images[train_line]
-        # ~ train_image.grid(row=row, column=firstRowColumns)
-        # ~ firstRowColumns+=1
+
 
     train_station_string = StringVar()
     train_station_string.set(station_object['description'])
@@ -281,7 +208,7 @@ for station_object in config['stations']:
 
       textvariable=train_station_string).grid(row=row,
                                    column=firstRowColumns,
-                                   columnspan=4,
+                                   columnspan=4, pady=3
                                 )
 
 
