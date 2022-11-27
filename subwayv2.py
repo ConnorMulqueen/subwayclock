@@ -174,7 +174,7 @@ dpi = int(m.winfo_pixels('1i'))
 ppx = dpi / 72
 
 # Font size of time text should be 10% of screen height
-timeTextFontSize = int((displayHeight * 0.01) * ppx)
+timeTextFontSize = int((displayHeight * 0.001) * ppx)
 
 # Label font size should be 5% of screen height
 labelFontSize = int((displayHeight * 0.025) * ppx)
@@ -183,7 +183,7 @@ labelFontSize = int((displayHeight * 0.025) * ppx)
 m.configure(background='white')
 
 # Target size of images is 37.5% of display height
-imageSize = int(displayHeight * 0.10)
+imageSize = int(displayHeight * 0.05)
 
 
 # Map train letters to images. Scale the images as necessary. The results
@@ -223,22 +223,27 @@ with open("stationsconfig.json", "r") as json_config:
 row = 0
 column = 0
 for station_object in config['stations']:
+    firstRowColumns = 0
+    for train_line in station_object['available_lines']:
+        # train image
+        train_image = Label(m)
+        train_image.config(bg='gray51', fg='gray51')
+        train_image['image'] = images[train_line]
+        train_image.grid(row=row, column=firstRowColumns)
+        firstRowColumns+=1
+
+    
     Label(m,
-          font=(fontName, labelFontSize),
-          text=station_object['description']).grid(row=row,
-                                       column=0,
-                                       columnspan=2,
-                                       sticky=W)
-    # train image
-    train_image = Label(m)
-    train_image['image'] = images['A']
+      font=(fontName, labelFontSize),
+      text=station_object['description']).grid(row=row,
+                                   column=firstRowColumns,
+                                   columnspan=2)
 
     train_string = StringVar()
     train_text = Label(m,
                     font=(fontName, timeTextFontSize),
                     textvariable=train_string)
     train_text.grid(row=row+1, column=1, sticky=W)
-    train_image.grid(row=row+1, column=0)
 
     # Draw horizontal line seperating uptown/downtown times
     lineMargin = 20
@@ -247,7 +252,7 @@ for station_object in config['stations']:
                bd=0,
                highlightthickness=0,
                relief='ridge')
-    c.grid(row=row+2, column=0, columnspan=2, sticky="ew")
+    c.grid(row=row+2, column=0, columnspan=2)
     c.create_line(0, lineMargin, displayWidth, lineMargin, width=3)
 
 
