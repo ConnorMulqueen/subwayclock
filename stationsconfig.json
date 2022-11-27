@@ -6,6 +6,11 @@
         "description": "Fulton St - Uptown & The Bronx"
       },
       {
+        "station_name": "418N",
+        "available_lines": ["4","5"],
+        "description": "Fulton St - Uptown & The Bronx"
+      },
+      {
 
         "station_name": "R25N",
         "available_lines": ["R","W"],
@@ -27,11 +32,15 @@
         "description": "Fulton St - Downtown & Brooklyn"
       },
       {
+        "station_name": "418S",
+        "available_lines": ["4","5"],
+        "description": "Fulton St - Downtown & Brooklyn"
+      },
+      {
         "station_name": "R25S",
         "available_lines": ["R","W"],
         "description": "Cortland St - Downtown & Brooklyn"
       },
-
       {
         "station_name": "M22S",
         "available_lines": ["J","Z"],

@@ -94,6 +94,7 @@ def callBack():
     global topText
     global bottomText
     global trainTimes
+    global current_times
 
     # Decrement all the arrival times by a minute (unless it's the first
     # time through)
@@ -112,22 +113,40 @@ def callBack():
 
         if (len(downtownTrains) > 0):
             downtownTrain = downtownTrains[0]
+            
+        # ~ decrement arrival times
+        for station in current_times.keys():
+            for train_line in current_times[station].keys():
+                try:
+                    current_times[station][train_line] = decList(current_times[station][train_line])
+                except:
+                    breakpoint()
+                
+                
+        for station in current_times.keys():
+            for train_line in current_times[station].keys():
+                stations[station][train_line].set(', '.join(str(time) for time in current_times[station][train_line][0:4]))
+        
+        
 
 
     # If it's time to fetch fresh MTA data, do so.
     if ((minuteCounter % fetchInterval) == 0):
-
         try:
             lines = [station_object['station_name'] for station_object in config['stations']]
             trainTimes = getTrainTimesList(lines)
+            current_times = {}
             for line in trainTimes:
     
                 
                 strings = {}
+                current_times[line] = {}
                 for time_and_line_tuple in trainTimes[line]:
                     if time_and_line_tuple[1] in strings:
+                        current_times[line][time_and_line_tuple[1]].append(time_and_line_tuple[0])
                         strings[time_and_line_tuple[1]].append(str(time_and_line_tuple[0])+',')
                     else:
+                        current_times[line][time_and_line_tuple[1]] = [time_and_line_tuple[0]]
                         strings[time_and_line_tuple[1]] = [str(time_and_line_tuple[0]) +',']
                 for train in strings:
                     print('setting ', line, ' for ', train)
@@ -263,7 +282,7 @@ for station_object in config['stations']:
       textvariable=train_station_string).grid(row=row,
                                    column=firstRowColumns,
                                    columnspan=4,
-                                pady=15)
+                                )
 
 
     train_image_1 = Label(m)
