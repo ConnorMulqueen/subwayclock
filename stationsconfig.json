@@ -3,22 +3,44 @@
       {
         "station_name": "229N",
         "available_lines": ["2","3"],
-        "description": "Uptown to ___"
+        "description": "Fulton St - Uptown & The Bronx"
+      },
+      {
+
+        "station_name": "R25N",
+        "available_lines": ["R","W"],
+        "description": "Cortland St - Uptown & Queens"
+      },
+      {
+        "station_name": "M22N",
+        "available_lines": ["J","Z"],
+        "description": "Fulton St - Uptown"
+      },
+      {
+        "station_name": "A38N",
+        "available_lines": ["A","C"],
+        "description": "Fulton St - Uptown"
       },
       {
         "station_name": "229S",
         "available_lines": ["2","3"],
-        "description": "Downtown to ___"
+        "description": "Fulton St - Downtown & Brooklyn"
       },
       {
-        "station_name": "139N",
+        "station_name": "R25S",
         "available_lines": ["R","W"],
-        "description": "Uptown to ___"
+        "description": "Cortland St - Downtown & Brooklyn"
+      },
+
+      {
+        "station_name": "M22S",
+        "available_lines": ["J","Z"],
+        "description": "Fulton St - Downtown & Brooklyn"
       },
       {
-        "station_name": "139S",
-        "available_lines": ["R","W"],
-        "description": "Downtown to ___"
+        "station_name": "A38S",
+        "available_lines": ["A","C"],
+        "description": "Fulton St - Downtown"
       }
   ]
 }

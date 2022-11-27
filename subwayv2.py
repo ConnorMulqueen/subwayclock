@@ -114,20 +114,34 @@ def callBack():
             downtownTrain = downtownTrains[0]
 
 
-
     # If it's time to fetch fresh MTA data, do so.
     if ((minuteCounter % fetchInterval) == 0):
 
         try:
-            trainTimes = getTrainTimesList(["229N","229S", "138N", "138S"])
+            lines = [station_object['station_name'] for station_object in config['stations']]
+            trainTimes = getTrainTimesList(lines)
+            for line in trainTimes:
+    
+                
+                strings = {}
+                for time_and_line_tuple in trainTimes[line]:
+                    if time_and_line_tuple[1] in strings:
+                        strings[time_and_line_tuple[1]].append(str(time_and_line_tuple[0])+',')
+                    else:
+                        strings[time_and_line_tuple[1]] = [str(time_and_line_tuple[0]) +',']
+                for train in strings:
+                    print('setting ', line, ' for ', train)
+                    stations[line][train].set(' '.join(strings[train][0:4])[:-1])
+                
 
             # If we successfully got MTA API data, set our text to black
-            topText.config(fg="black")
-            bottomText.config(fg="black")
-        except:
+            #topText.config(fg="black")
+            #bottomText.config(fg="black")t
+        except Exception as e:
+            print('exception thrown', e)
             # If the last MTA API call failed, set our text to red
-            topText.config(fg="red")
-            bottomText.config(fg="red")
+            # topText.config(fg="red")
+            #bottomText.config(fg="red")
 
             # If the API called failed, then bump the minute counter
             # down. This will force another API call on the next
@@ -135,24 +149,27 @@ def callBack():
             minuteCounter -= 1
 
     # Set the images to the uptown and downtown trains
-    try:
-        topImage['image'] = images[uptownTrain]
-    except:
-        topImage['image'] = images['unknown']
+    #try:
+    #    topImage['image'] = images[uptownTrain]
+    #except:
+    #    topImage['image'] = images['unknown']
 
-    try:
-        bottomImage['image'] = images[downtownTrain]
-    except:
-        bottomImage['image'] = images['unknown']
+    #try:
+    #    bottomImage['image'] = images[downtownTrain]
+    #except:
+    #    bottomImage['image'] = images['unknown']
+        
 
     # Update the display of the arrival times
-    topString.set(formatMinutes(uptownMinutes))
-    bottomString.set(formatMinutes(downtownMinutes))
+    # topString.set(formatMinutes(uptownMinutes))
+    # bottomString.set(formatMinutes(downtownMinutes))
 
     # Increment our minute counter
     minuteCounter += 1
 
     # See 'ya again in a minute
+    
+    print('fin')
     m.after(oneMinute,callBack)
 
 
@@ -174,10 +191,10 @@ dpi = int(m.winfo_pixels('1i'))
 ppx = dpi / 72
 
 # Font size of time text should be 10% of screen height
-timeTextFontSize = int((displayHeight * 0.001) * ppx)
+timeTextFontSize = int((displayHeight * 0.010) * ppx)
 
 # Label font size should be 5% of screen height
-labelFontSize = int((displayHeight * 0.025) * ppx)
+labelFontSize = int((displayHeight * 0.015) * ppx)
 
 # Make our background white
 m.configure(background='white')
@@ -222,28 +239,65 @@ with open("stationsconfig.json", "r") as json_config:
 
 row = 0
 column = 0
+stations = {}
 for station_object in config['stations']:
     firstRowColumns = 0
-    for train_line in station_object['available_lines']:
-        # train image
-        train_image = Label(m)
-        train_image.config(bg='gray51', fg='gray51')
-        train_image['image'] = images[train_line]
-        train_image.grid(row=row, column=firstRowColumns)
-        firstRowColumns+=1
+    stations[station_object['station_name']] = {}
+    # ~ for line in station_object['available_lines']:
+        # ~ stations[station_object['station_name'][line] = 'put times label here'
+    # ~ for train_line in station_object['available_lines']:
+        # ~ # train image
+        # ~ train_image = Label(m)
+        # ~ train_image.config(bg='gray51', fg='gray51')
+        # ~ train_image['image'] = images[train_line]
+        # ~ train_image.grid(row=row, column=firstRowColumns)
+        # ~ firstRowColumns+=1
 
-    
+    train_station_string = StringVar()
+    train_station_string.set(station_object['description'])
     Label(m,
       font=(fontName, labelFontSize),
-      text=station_object['description']).grid(row=row,
-                                   column=firstRowColumns,
-                                   columnspan=2)
+      anchor='w',
+      justify='left',
 
-    train_string = StringVar()
-    train_text = Label(m,
+      textvariable=train_station_string).grid(row=row,
+                                   column=firstRowColumns,
+                                   columnspan=4,
+                                pady=15)
+
+
+    train_image_1 = Label(m)
+    train_image_1.config(bg='gray51', fg='gray51')
+    train_image_1['image'] = images[station_object['available_lines'][0]]
+    train_image_1.grid(row=row+1, column=0, sticky=W)
+
+    train_string_line_1 = StringVar()
+    train_string_line_1.set('no trains running')
+    train_text_1 = Label(m,
                     font=(fontName, timeTextFontSize),
-                    textvariable=train_string)
-    train_text.grid(row=row+1, column=1, sticky=W)
+                    justify='left',
+                    textvariable=train_string_line_1)
+    train_text_1.grid(row=row+1, column=1, sticky=W)
+
+    
+    train_image_2 = Label(m)
+    train_image_2.config(bg='gray51', fg='gray51')
+    train_image_2['image'] = images[station_object['available_lines'][1]]
+    train_image_2.grid(row=row+1, column=2)
+
+    train_string_line_2 = StringVar()
+    train_string_line_2.set('no trains running')
+    train_text_2 = Label(m,
+                    anchor='w',
+                    justify='left',
+                    font=(fontName, timeTextFontSize),
+                    textvariable=train_string_line_2)
+    train_text_2.grid(row=row+1, column=3, sticky=W)
+
+    
+    stations[station_object['station_name']][station_object['available_lines'][0]] = train_string_line_1
+    
+    stations[station_object['station_name']][station_object['available_lines'][1]] = train_string_line_2
 
     # Draw horizontal line seperating uptown/downtown times
     lineMargin = 20
@@ -252,7 +306,7 @@ for station_object in config['stations']:
                bd=0,
                highlightthickness=0,
                relief='ridge')
-    c.grid(row=row+2, column=0, columnspan=2)
+    c.grid(row=row+2, column=0, columnspan=4)
     c.create_line(0, lineMargin, displayWidth, lineMargin, width=3)
 
 
@@ -270,6 +324,8 @@ minuteCounter = 0
 callBack()
 
 # Run the UI
+m.geometry('1080x1920')
+m.update_idletasks()
 m.mainloop()
 
 
